@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,43 +6,60 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import React from "react";
 import axios from "axios";
-import { Heart, Plus } from "lucide-react";
+import { ArrowBigLeft, Car, Heart, Plus } from "lucide-react";
+import { access } from "fs";
+import MovieCard from "@/components/common/MovieCard";
 
-interface IMovie {
-    Title: string,
-    Year: string,
-    imdbID: string,
-    Type: string,
-    Poster: string
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+
+export interface IMovie {
+  Title: string;
+  Year: string;
+  imdbID: string;
+  Type: string;
+  Poster: string;
 }
 
-async function Dashboard() {
-    //FIXAREEEE
-    //TODO - fetch movies from the API
-    //FIX finire di implementare la funzione fetchMovies
-    const [movies, setMovies] = useState<IMovie[]>([]);
+async function fetchMovies(searchParam: string = "batman") {
+  const response = await axios.get("http://www.omdbapi.com/", {
+    params: {
+      s: searchParam,
+      apikey: "517cfddb",
+    },
+  });
+  console.log(response.data.Search);
+  return response.data.Search;
+}
 
-    async function fetchMovies(movieName: string) {
-        const movies = await axios.get(process.env.API_ENDPOINT || "", {
-            params: {
-                apikey: process.env.API_KEY,
-                s: movieName
-            }
-        });
+function Dashboard() {
+  //FIXAREEEE
+  //TODO - fetch movies from the API
+  //FIX finire di implementare la funzione fetchMovies
+  const [movies, setMovies] = useState<IMovie[]>([]);
+  const [mostViewed, setMostViewed] = useState<IMovie[]>([]);
 
-        console.log(movies.data)
+  useEffect(() => {
+    fetchMovies()
+      .then((movies) => setMovies(movies))
+      .catch((err) => console.log(err));
 
-       return movies.data;
-    }
+    fetchMovies("most viewed")
+      .then((movies) => setMostViewed(movies))
+      .catch((err) => console.log(err));
+  }, []);
 
-    const allMovies = await fetchMovies("war");
-    const movieContainer = [...allMovies.Search];
   return (
     <div className="p-6 text-white">
       {/* COllection of types of movies */}
-      <div className="flex justify-start items-center gap-10">
+      <div className="flex flex-wrap md:justify-start justify-around items-center gap-10">
         <Button size={"lg"}>🍿 All</Button>
-        <Button size={"lg"} onClick={() => {movieContainer.filter(movie => movie.Type === "movie")}}>🎥 Movie</Button>
+        <Button size={"lg"}>🎥 Movie</Button>
         <Button size={"lg"}>🏝️ Series</Button>
         <Button size={"lg"}>😁 Comedy</Button>
         <Button size={"lg"}>🧟 Horror</Button>
@@ -51,23 +68,56 @@ async function Dashboard() {
       </div>
 
       <section id="most-watch">
+        <div id="carousel-hero" className="">
+          <h2 className="text-4xl font-bold mt-20 mb-8">Most watched</h2>
+          <Carousel
+            className="w-2/3 z-10 mx-auto"
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+          >
+            <CarouselContent className="text-center">
+              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+                item 1
+              </CarouselItem>
+              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+                item 2
+              </CarouselItem>
+              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+                item 3
+              </CarouselItem>
+              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+                item 1
+              </CarouselItem>
+              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+                item 2
+              </CarouselItem>
+              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+                item 3
+              </CarouselItem>
+              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+                item 1
+              </CarouselItem>
+              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+                item 2
+              </CarouselItem>
+              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+                item 3
+              </CarouselItem>
+            </CarouselContent>
+            <CarouselPrevious variant={"default"} />
+            <CarouselNext variant={"default"}/>
+          </Carousel>
+        </div>
+
         <h2 className="text-4xl font-bold mt-20 mb-8">Latest movies</h2>
         <div className="flex gap-4 flex-wrap">
-            {
-                movieContainer.map( (movie:IMovie ) => (
-    
-                   <div key={movie.imdbID} className="flex flex-col items-center relative"> 
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 block z-10 w-full h-full">
-                        <Button><Heart /></Button>
-                        <Button><Plus /></Button>
-                    </div>
-                    <Image src={movie.Poster} alt="movie poster" width={200} height={200} className="rounded-xl cursor-pointer hover:opacity-35">
-                    </Image>
-                    
-                   {/* <p className="text-xl">{movie.Title}</p> */}
-                   </div>
-                ))
-            }
+          {movies.length !== 0
+            ? movies.map((movie: IMovie) => (
+                <MovieCard movie={movie} key={movie.imdbID} />
+              ))
+            : "Loading..."}
         </div>
       </section>
     </div>
