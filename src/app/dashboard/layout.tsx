@@ -5,10 +5,10 @@ import React from "react";
 
 function layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-[#0e0e0e] min-h-screen text-white">
+    <div className="bg-[#0f0f0f] min-h-screen text-white">
       <nav className="fixed top-0 left-0 bg-transparent h-full p-8 flex flex-col justify-between">
         <ul className="flex flex-col justify-evenly items-center gap-20">
-          <Button variant={"ghost"}  size={"icon"}><Link href={"#"}><Home /></Link></Button>
+          <Button variant={"default"}  size={"icon"}><Link href={"#"}><Home /></Link></Button>
           <Button variant={"default"} size={"icon"}><Link href={"#"}><Search /></Link></Button>
           <Button variant={"default"} size={"icon"}><Link href={"#"}><Star /></Link></Button>
           <Button variant={"default"} size={"icon"}><Link href={"#"}><Settings /></Link></Button>
